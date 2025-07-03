@@ -1,6 +1,6 @@
 # Micro Commerce - Architecture Microservices
 
-Salut ! 👋
+Helo
 
 Voici un petit projet d'e-commerce basé sur une architecture microservices avec Spring Boot. Rien de trop compliqué, juste de quoi comprendre comment ça marche quand on sépare tout en petits services.
 
@@ -107,17 +107,6 @@ Chaque microservice a son propre dépôt Git :
 
 Plus un dépôt principal pour la config globale (docker-compose, etc.)
 
-## Ce qui pourrait être amélioré
-
-- API Gateway pour centraliser les appels
-- Service Discovery (Eureka)
-- Circuit Breaker pour la résilience
-- Monitoring et logs centralisés
-- Sécurité JWT
-- Tests d'intégration
-
-Mais bon, pour comprendre les bases, c'est déjà pas mal ! 😊
-
 ## Problèmes courants
 
 **Les services ne se trouvent pas ?**
@@ -126,9 +115,4 @@ Mais bon, pour comprendre les bases, c'est déjà pas mal ! 😊
 **Erreur 404 sur les endpoints ?**
 → Assure-toi que tous les services sont bien démarrés
 
-**Problème de CORS ?**
-→ Pour l'instant on a pas de front, mais si tu en ajoutes un, pense à configurer CORS
-
 ---
-
-Voilà, c'est tout ! Si tu as des questions, n'hésite pas 🚀

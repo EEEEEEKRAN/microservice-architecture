@@ -1,6 +1,26 @@
 version: '3.8'
 
 services:
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-microservice
+    ports:
+      - "5672:5672"    # Port AMQP
+      - "15672:15672"  # Interface web de management
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - microcommerce-network
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Base de données MongoDB pour le service utilisateur
   mongodb-user:
     image: mongo:latest
@@ -37,8 +57,13 @@ services:
       SPRING_DATA_MONGODB_HOST: mongodb-user
       SPRING_DATA_MONGODB_PORT: 27017
       SPRING_DATA_MONGODB_DATABASE: userservice_db
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: password123
     depends_on:
       - mongodb-user
+      - rabbitmq
     networks:
       - microcommerce-network
     restart: on-failure
@@ -53,8 +78,51 @@ services:
       SPRING_DATA_MONGODB_HOST: mongodb-product
       SPRING_DATA_MONGODB_PORT: 27017
       SPRING_DATA_MONGODB_DATABASE: productservice_db
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: password123
     depends_on:
       - mongodb-product
+      - rabbitmq
+    networks:
+      - microcommerce-network
+    restart: on-failure
+
+  # Base de données MongoDB pour le service commande
+  mongodb-order:
+    image: mongo:latest
+    container_name: mongodb-order-service
+    ports:
+      - "27019:27017"  # Port différent pour éviter les conflits
+    environment:
+      MONGO_INITDB_DATABASE: orderservice_db
+    volumes:
+      - mongodb_order_data:/data/db
+    networks:
+      - microcommerce-network
+
+  # Service commande
+  order-service:
+    build: ./order-service
+    container_name: order-service-app
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb-order
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: orderservice_db
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: admin
+      SPRING_RABBITMQ_PASSWORD: password123
+      SERVICES_USER_SERVICE_URL: http://user-service:8082
+      SERVICES_PRODUCT_SERVICE_URL: http://product-service:8081
+    depends_on:
+      - mongodb-order
+      - rabbitmq
+      - user-service
+      - product-service
     networks:
       - microcommerce-network
     restart: on-failure
@@ -62,6 +130,8 @@ services:
 volumes:
   mongodb_user_data:
   mongodb_product_data:
+  mongodb_order_data:
+  rabbitmq_data:
 
 networks:
   microcommerce-network:
