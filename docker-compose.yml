@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Base de données MongoDB pour le service utilisateur
+  mongodb-user:
+    image: mongo:latest
+    container_name: mongodb-user-service
+    ports:
+      - "27018:27017"  # Port différent pour éviter les conflits
+    environment:
+      MONGO_INITDB_DATABASE: userservice_db
+    volumes:
+      - mongodb_user_data:/data/db
+    networks:
+      - microcommerce-network
+
+  # Base de données MongoDB pour le service produit
+  mongodb-product:
+    image: mongo:latest
+    container_name: mongodb-product-service
+    ports:
+      - "27017:27017"  # Port standard
+    environment:
+      MONGO_INITDB_DATABASE: productservice_db
+    volumes:
+      - mongodb_product_data:/data/db
+    networks:
+      - microcommerce-network
+
+  # Service utilisateur
+  user-service:
+    build: ./user-service
+    container_name: user-service-app
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb-user
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: userservice_db
+    depends_on:
+      - mongodb-user
+    networks:
+      - microcommerce-network
+    restart: on-failure
+
+  # Service produit
+  product-service:
+    build: ./product-service
+    container_name: product-service-app
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATA_MONGODB_HOST: mongodb-product
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: productservice_db
+    depends_on:
+      - mongodb-product
+    networks:
+      - microcommerce-network
+    restart: on-failure
+
+volumes:
+  mongodb_user_data:
+  mongodb_product_data:
+
+networks:
+  microcommerce-network:
+    driver: bridge

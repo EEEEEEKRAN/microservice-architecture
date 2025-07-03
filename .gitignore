@@ -1,0 +1,44 @@
+# Dossier Trae à ignorer
+.trae/
+
+# Fichiers de build Maven
+target/
+*.jar
+*.war
+*.ear
+*.class
+
+# Logs
+*.log
+logs/
+
+# Fichiers IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Variables d'environnement
+.env
+.env.local
+.env.production
+
+# Docker
+.dockerignore
+
+# Node modules (si on ajoute du front plus tard)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
