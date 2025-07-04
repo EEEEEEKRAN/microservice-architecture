@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Interface - Microservices API</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #48ad16 0%, #2d6b0a 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #e8ecf0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 4px solid #48ad16;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(135deg, #48ad16, #5bc41f);
+            border-radius: 2px;
+        }
+
+        .auth-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 24px;
+            border-bottom: 1px solid #e1e5e9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .auth-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .token-display {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .token-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            background: #fafbfc;
+            transition: all 0.3s ease;
+        }
+
+        .token-input:focus {
+            outline: none;
+            border-color: #48ad16;
+            box-shadow: 0 0 0 3px rgba(72, 173, 22, 0.1);
+            background: #ffffff;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 0;
+        }
+
+        .service-section {
+            border-right: 2px solid #e9ecef;
+            min-height: 600px;
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            transition: all 0.3s ease;
+        }
+
+        .service-section:hover {
+            background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 100%);
+        }
+
+        .service-section:last-child {
+            border-right: none;
+        }
+
+        .service-header {
+            padding: 24px;
+            font-size: 1.6em;
+            font-weight: 700;
+            text-align: center;
+            color: white;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .service-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+
+        .user-service .service-header {
+            background: linear-gradient(135deg, #48ad16, #2d6b0a);
+        }
+
+        .product-service .service-header {
+            background: linear-gradient(135deg, #48ad16, #2d6b0a);
+        }
+
+        .order-service .service-header {
+            background: linear-gradient(135deg, #48ad16, #2d6b0a);
+        }
+
+        .endpoints {
+            padding: 20px;
+        }
+
+        .endpoint {
+            margin-bottom: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .endpoint:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .endpoint-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+        .endpoint-header:hover {
+            background: linear-gradient(135deg, #48ad16 0%, #5bc41f 100%);
+            color: white;
+        }
+
+        .endpoint-header:hover .method {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .method {
+            padding: 6px 12px;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        .method.GET { background: linear-gradient(135deg, #48ad16, #5bc41f); }
+        .method.POST { background: linear-gradient(135deg, #2196F3, #42A5F5); }
+        .method.PUT { background: linear-gradient(135deg, #FF9800, #FFB74D); color: #fff; }
+        .method.DELETE { background: linear-gradient(135deg, #F44336, #EF5350); }
+
+        .endpoint-content {
+            padding: 20px;
+            display: none;
+            background: #fff;
+        }
+
+        .endpoint-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #ffffff;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #48ad16;
+            box-shadow: 0 0 0 3px rgba(72, 173, 22, 0.1);
+            background: #fafbfc;
+        }
+
+        .form-group textarea {
+            height: 120px;
+            font-family: monospace;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #48ad16, #2d6b0a);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 8px rgba(72, 173, 22, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 173, 22, 0.4);
+            background: linear-gradient(135deg, #5bc41f, #48ad16);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .response {
+            margin-top: 16px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border-left: 4px solid;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .response.success {
+            background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e8 100%);
+            border-left-color: #48ad16;
+            color: #2d5016;
+            border: 1px solid #c3e6cb;
+        }
+
+        .response.error {
+            background: linear-gradient(135deg, #fdf2f2 0%, #fce8e8 100%);
+            border-left-color: #dc3545;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .quick-auth {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .quick-auth button {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .quick-auth button:hover {
+            background: linear-gradient(135deg, #48ad16, #5bc41f);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(72, 173, 22, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-section {
+                border-right: none;
+                border-bottom: 2px solid #e9ecef;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interface de Test - Microservices</h1>
+            <p>Testez tous vos endpoints User, Product et Order en un clic</p>
+        </div>
+
+        <div class="auth-section">
+            <div class="auth-controls">
+                <div class="token-display">
+                    <label for="token">Token JWT :</label>
+                    <input type="text" id="token" class="token-input" placeholder="Votre token JWT apparaîtra ici après connexion...">
+                </div>
+                <div class="quick-auth">
+                    <button onclick="quickLogin('admin')">Login Admin</button>
+                    <button onclick="quickLogin('user')">Login User</button>
+                    <button onclick="clearToken()">Clear Token</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- USER SERVICE -->
+            <div class="service-section user-service">
+                <div class="service-header">
+                    User Service (8082)
+                </div>
+                <div class="endpoints">
+                    <!-- Register -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method POST">POST</span> /api/auth/register</span>
+                            <span>S'inscrire</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>Nom :</label>
+                                <input type="text" id="register-name" value="Test User">
+                            </div>
+                            <div class="form-group">
+                                <label>Email :</label>
+                                <input type="email" id="register-email" value="test@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Mot de passe :</label>
+                                <input type="password" id="register-password" value="password123">
+                            </div>
+                            <button class="btn" onclick="register()">S'inscrire</button>
+                            <div id="register-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Login -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method POST">POST</span> /api/auth/login</span>
+                            <span>Se connecter</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>Email :</label>
+                                <input type="email" id="login-email" value="admin@microcommerce.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Mot de passe :</label>
+                                <input type="password" id="login-password" value="admin123">
+                            </div>
+                            <button class="btn" onclick="login()">Se connecter</button>
+                            <div id="login-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get All Users -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/users</span>
+                            <span>Tous les utilisateurs (Admin)</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <button class="btn" onclick="getAllUsers()">Récupérer tous les utilisateurs</button>
+                            <div id="users-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get User by ID -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/users/{id}</span>
+                            <span>Utilisateur par ID</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Utilisateur :</label>
+                                <input type="text" id="user-id" placeholder="ID de l'utilisateur">
+                            </div>
+                            <button class="btn" onclick="getUserById()">Récupérer utilisateur</button>
+                            <div id="user-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Update User -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method PUT">PUT</span> /api/users/{id}</span>
+                            <span>Modifier utilisateur</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Utilisateur :</label>
+                                <input type="text" id="update-user-id" placeholder="ID de l'utilisateur">
+                            </div>
+                            <div class="form-group">
+                                <label>Nom :</label>
+                                <input type="text" id="update-name" value="Nom Modifié">
+                            </div>
+                            <div class="form-group">
+                                <label>Email :</label>
+                                <input type="email" id="update-email" value="modifie@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Mot de passe :</label>
+                                <input type="password" id="update-password" value="newpassword123">
+                            </div>
+                            <button class="btn" onclick="updateUser()">Modifier utilisateur</button>
+                            <div id="update-user-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT SERVICE -->
+            <div class="service-section product-service">
+                <div class="service-header">
+                    Product Service (8081)
+                </div>
+                <div class="endpoints">
+                    <!-- Get All Products -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/products</span>
+                            <span>Tous les produits</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <button class="btn" onclick="getAllProducts()">Récupérer tous les produits</button>
+                            <div id="products-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get Product by ID -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/products/{id}</span>
+                            <span>Produit par ID</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Produit :</label>
+                                <input type="text" id="product-id" placeholder="ID du produit">
+                            </div>
+                            <button class="btn" onclick="getProductById()">Récupérer produit</button>
+                            <div id="product-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Create Product -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method POST">POST</span> /api/products</span>
+                            <span>Créer produit (Admin)</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>Nom :</label>
+                                <input type="text" id="create-product-name" value="Nouveau Produit">
+                            </div>
+                            <div class="form-group">
+                                <label>Description :</label>
+                                <textarea id="create-product-description">Description du nouveau produit</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Prix :</label>
+                                <input type="number" id="create-product-price" value="29.99" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Stock :</label>
+                                <input type="number" id="create-product-stock" value="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Catégorie :</label>
+                                <input type="text" id="create-product-category" value="Électronique">
+                            </div>
+                            <button class="btn" onclick="createProduct()">Créer produit</button>
+                            <div id="create-product-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Update Product -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method PUT">PUT</span> /api/products/{id}</span>
+                            <span>Modifier produit (Admin)</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Produit :</label>
+                                <input type="text" id="update-product-id" placeholder="ID du produit">
+                            </div>
+                            <div class="form-group">
+                                <label>Nom :</label>
+                                <input type="text" id="update-product-name" value="Produit Modifié">
+                            </div>
+                            <div class="form-group">
+                                <label>Description :</label>
+                                <textarea id="update-product-description">Description modifiée</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Prix :</label>
+                                <input type="number" id="update-product-price" value="39.99" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label>Stock :</label>
+                                <input type="number" id="update-product-stock" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Catégorie :</label>
+                                <input type="text" id="update-product-category" value="Électronique">
+                            </div>
+                            <button class="btn" onclick="updateProduct()">Modifier produit</button>
+                            <div id="update-product-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Delete Product -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method DELETE">DELETE</span> /api/products/{id}</span>
+                            <span>Supprimer produit (Admin)</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Produit :</label>
+                                <input type="text" id="delete-product-id" placeholder="ID du produit">
+                            </div>
+                            <button class="btn" onclick="deleteProduct()">Supprimer produit</button>
+                            <div id="delete-product-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ORDER SERVICE -->
+            <div class="service-section order-service">
+                <div class="service-header">
+                    Order Service (8083)
+                </div>
+                <div class="endpoints">
+                    <!-- Create Order -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method POST">POST</span> /api/orders</span>
+                            <span>Créer commande</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>JSON Commande :</label>
+                                <textarea id="create-order-json">{
+  "items": [
+    {
+      "productId": "PRODUCT_ID_HERE",
+      "productName": "Produit Test",
+      "quantity": 2,
+      "price": 29.99
+    }
+  ],
+  "shippingAddress": "123 Rue Test",
+  "shippingCity": "Paris",
+  "shippingZipCode": "75001",
+  "shippingCountry": "France",
+  "notes": "Commande de test"
+}</textarea>
+                            </div>
+                            <button class="btn" onclick="createOrder()">Créer commande</button>
+                            <div id="create-order-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get All Orders -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/orders</span>
+                            <span>Mes commandes</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <button class="btn" onclick="getAllOrders()">Récupérer mes commandes</button>
+                            <div id="orders-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get Order by ID -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/orders/{id}</span>
+                            <span>Commande par ID</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Commande :</label>
+                                <input type="text" id="order-id" placeholder="ID de la commande">
+                            </div>
+                            <button class="btn" onclick="getOrderById()">Récupérer commande</button>
+                            <div id="order-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Update Order Status -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method PUT">PUT</span> /api/orders/{id}/status</span>
+                            <span>Modifier statut</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Commande :</label>
+                                <input type="text" id="status-order-id" placeholder="ID de la commande">
+                            </div>
+                            <div class="form-group">
+                                <label>Nouveau statut :</label>
+                                <select id="order-status">
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="CONFIRMED">CONFIRMED</option>
+                                    <option value="PROCESSING">PROCESSING</option>
+                                    <option value="SHIPPED">SHIPPED</option>
+                                    <option value="DELIVERED">DELIVERED</option>
+                                    <option value="CANCELLED">CANCELLED</option>
+                                </select>
+                            </div>
+                            <button class="btn" onclick="updateOrderStatus()">Modifier statut</button>
+                            <div id="status-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Order -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method PUT">PUT</span> /api/orders/{id}/cancel</span>
+                            <span>Annuler commande</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <div class="form-group">
+                                <label>ID Commande :</label>
+                                <input type="text" id="cancel-order-id" placeholder="ID de la commande">
+                            </div>
+                            <button class="btn" onclick="cancelOrder()">Annuler commande</button>
+                            <div id="cancel-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Get Order Stats -->
+                    <div class="endpoint">
+                        <div class="endpoint-header" onclick="toggleEndpoint(this)">
+                            <span><span class="method GET">GET</span> /api/orders/stats</span>
+                            <span>Statistiques</span>
+                        </div>
+                        <div class="endpoint-content">
+                            <button class="btn" onclick="getOrderStats()">Récupérer statistiques</button>
+                            <div id="stats-response" class="response" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_URLS = {
+            user: 'http://localhost:8082',
+            product: 'http://localhost:8081',
+            order: 'http://localhost:8083'
+        };
+
+        let currentToken = '';
+
+        // Toggle endpoint visibility
+        function toggleEndpoint(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+        }
+
+        // Get headers with token
+        function getHeaders(includeContentType = true) {
+            const headers = {};
+            if (includeContentType) {
+                headers['Content-Type'] = 'application/json';
+            }
+            if (currentToken) {
+                headers['Authorization'] = `Bearer ${currentToken}`;
+            }
+            return headers;
+        }
+
+        // Display response
+        function displayResponse(elementId, response, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `response ${isError ? 'error' : 'success'}`;
+            element.textContent = JSON.stringify(response, null, 2);
+        }
+
+        // Quick login functions
+        async function quickLogin(type) {
+            const credentials = {
+                admin: { email: 'admin@microcommerce.com', password: 'admin123' },
+                user: { email: 'jean.dupont@email.com', password: 'password123' }
+            };
+
+            document.getElementById('login-email').value = credentials[type].email;
+            document.getElementById('login-password').value = credentials[type].password;
+            await login();
+        }
+
+        function clearToken() {
+            currentToken = '';
+            document.getElementById('token').value = '';
+        }
+
+        // USER SERVICE FUNCTIONS
+        async function register() {
+            const data = {
+                name: document.getElementById('register-name').value,
+                email: document.getElementById('register-email').value,
+                password: document.getElementById('register-password').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URLS.user}/api/auth/register`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                displayResponse('register-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('register-response', { error: error.message }, true);
+            }
+        }
+
+        async function login() {
+            const data = {
+                email: document.getElementById('login-email').value,
+                password: document.getElementById('login-password').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URLS.user}/api/auth/login`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                
+                if (response.ok && result.token) {
+                    currentToken = result.token;
+                    document.getElementById('token').value = currentToken;
+                }
+                
+                displayResponse('login-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('login-response', { error: error.message }, true);
+            }
+        }
+
+        async function getAllUsers() {
+            try {
+                const response = await fetch(`${BASE_URLS.user}/api/users`, {
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('users-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('users-response', { error: error.message }, true);
+            }
+        }
+
+        async function getUserById() {
+            const id = document.getElementById('user-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID utilisateur');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.user}/api/users/${id}`, {
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('user-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('user-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateUser() {
+            const id = document.getElementById('update-user-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID utilisateur');
+                return;
+            }
+
+            const data = {
+                name: document.getElementById('update-name').value,
+                email: document.getElementById('update-email').value,
+                password: document.getElementById('update-password').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URLS.user}/api/users/${id}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                displayResponse('update-user-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('update-user-response', { error: error.message }, true);
+            }
+        }
+
+        // PRODUCT SERVICE FUNCTIONS
+        async function getAllProducts() {
+            try {
+                const response = await fetch(`${BASE_URLS.product}/api/products`);
+                const result = await response.json();
+                displayResponse('products-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('products-response', { error: error.message }, true);
+            }
+        }
+
+        async function getProductById() {
+            const id = document.getElementById('product-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID produit');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.product}/api/products/${id}`);
+                const result = await response.json();
+                displayResponse('product-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('product-response', { error: error.message }, true);
+            }
+        }
+
+        async function createProduct() {
+            const data = {
+                name: document.getElementById('create-product-name').value,
+                description: document.getElementById('create-product-description').value,
+                price: parseFloat(document.getElementById('create-product-price').value),
+                stock: parseInt(document.getElementById('create-product-stock').value),
+                category: document.getElementById('create-product-category').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URLS.product}/api/products`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                displayResponse('create-product-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('create-product-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateProduct() {
+            const id = document.getElementById('update-product-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID produit');
+                return;
+            }
+
+            const data = {
+                name: document.getElementById('update-product-name').value,
+                description: document.getElementById('update-product-description').value,
+                price: parseFloat(document.getElementById('update-product-price').value),
+                stock: parseInt(document.getElementById('update-product-stock').value),
+                category: document.getElementById('update-product-category').value
+            };
+
+            try {
+                const response = await fetch(`${BASE_URLS.product}/api/products/${id}`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                displayResponse('update-product-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('update-product-response', { error: error.message }, true);
+            }
+        }
+
+        async function deleteProduct() {
+            const id = document.getElementById('delete-product-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID produit');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.product}/api/products/${id}`, {
+                    method: 'DELETE',
+                    headers: getHeaders(false)
+                });
+                
+                if (response.ok) {
+                    displayResponse('delete-product-response', { message: 'Produit supprimé avec succès' }, false);
+                } else {
+                    const result = await response.json();
+                    displayResponse('delete-product-response', result, true);
+                }
+            } catch (error) {
+                displayResponse('delete-product-response', { error: error.message }, true);
+            }
+        }
+
+        // ORDER SERVICE FUNCTIONS
+        async function createOrder() {
+            try {
+                const data = JSON.parse(document.getElementById('create-order-json').value);
+                
+                const response = await fetch(`${BASE_URLS.order}/api/orders`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                displayResponse('create-order-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('create-order-response', { error: error.message }, true);
+            }
+        }
+
+        async function getAllOrders() {
+            try {
+                const response = await fetch(`${BASE_URLS.order}/api/orders`, {
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('orders-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('orders-response', { error: error.message }, true);
+            }
+        }
+
+        async function getOrderById() {
+            const id = document.getElementById('order-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID commande');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.order}/api/orders/${id}`, {
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('order-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('order-response', { error: error.message }, true);
+            }
+        }
+
+        async function updateOrderStatus() {
+            const id = document.getElementById('status-order-id').value;
+            const status = document.getElementById('order-status').value;
+            
+            if (!id) {
+                alert('Veuillez saisir un ID commande');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.order}/api/orders/${id}/status`, {
+                    method: 'PUT',
+                    headers: getHeaders(),
+                    body: JSON.stringify({ status: status })
+                });
+                const result = await response.json();
+                displayResponse('status-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('status-response', { error: error.message }, true);
+            }
+        }
+
+        async function cancelOrder() {
+            const id = document.getElementById('cancel-order-id').value;
+            if (!id) {
+                alert('Veuillez saisir un ID commande');
+                return;
+            }
+
+            if (!confirm('Êtes-vous sûr de vouloir annuler cette commande ?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URLS.order}/api/orders/${id}/cancel`, {
+                    method: 'PUT',
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('cancel-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('cancel-response', { error: error.message }, true);
+            }
+        }
+
+        async function getOrderStats() {
+            try {
+                const response = await fetch(`${BASE_URLS.order}/api/orders/stats`, {
+                    headers: getHeaders(false)
+                });
+                const result = await response.json();
+                displayResponse('stats-response', result, !response.ok);
+            } catch (error) {
+                displayResponse('stats-response', { error: error.message }, true);
+            }
+        }
+
+        // Initialize token from localStorage if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedToken = localStorage.getItem('jwt-token');
+            if (savedToken) {
+                currentToken = savedToken;
+                document.getElementById('token').value = currentToken;
+            }
+
+            // Save token to localStorage when it changes
+            document.getElementById('token').addEventListener('input', function(e) {
+                currentToken = e.target.value;
+                if (currentToken) {
+                    localStorage.setItem('jwt-token', currentToken);
+                } else {
+                    localStorage.removeItem('jwt-token');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
